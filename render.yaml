@@ -2,10 +2,10 @@ services:
   - type: web
     name: daily-brief
     env: node
-    buildCommand: npm ci && npm run build
+    buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
-        value: production
+        value: development
       - key: PORT
         value: 10000
