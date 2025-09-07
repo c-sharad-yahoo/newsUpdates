@@ -16,13 +16,13 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite",
-    "dev:server": "concurrently \"npm run server\" \"npm run dev\" --kill-others-on-fail",
+    "dev:server": "concurrently \"npm run server\" \"npm run dev\" --kill-others-on-fail --names \"SERVER,VITE\" --prefix-colors \"blue,green\"",
     "server": "node server/index.cjs",
     "build": "tsc && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "node server/index.cjs",
-    "bolt:dev": "vite --host 0.0.0.0 --port 5173"
+    "bolt:dev": "npm run dev:server"
   },
   "dependencies": {
     "@types/react": "^18.3.5",
