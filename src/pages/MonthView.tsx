@@ -100,7 +100,7 @@ const MonthView: React.FC = () => {
                 </h2>
                 
                 <p className="text-gray-600 mb-4 leading-relaxed">
-                  {article.excerpt}
+                  {getArticleExcerpt(article)}
                 </p>
                 
                 <Link

@@ -35,8 +35,8 @@ app.post('/api/webhook/daily-update', async (req, res) => {
       return res.status(400).json({ error: 'Content is required' });
     }
     
-    // Parse markdown content
-    const article = storage.parseMarkdownContent(content);
+    // Process JSON content
+    const article = storage.processJsonContent(content);
     
     // Save article to persistent storage
     await storage.saveWebhookArticle(article);

@@ -10,6 +10,12 @@ const Home: React.FC = () => {
   const latestArticle = articles.length > 0 ? articles[0] : null;
   const isLoading = articlesLoading || monthlyLoading;
 
+  // Generate excerpt for display
+  const getArticleExcerpt = (article: any) => {
+    if (article.excerpt) return article.excerpt;
+    if (article.primary_focus?.summary) return article.primary_focus.summary;
+    return 'Today\'s essential news analysis and global updates.';
+  };
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -83,7 +89,7 @@ const Home: React.FC = () => {
                   </h3>
                   
                   <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                    {article.excerpt}
+                    {getArticleExcerpt(article)}
                   </p>
                   
                   <div className="flex items-center justify-between">

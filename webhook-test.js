@@ -1,94 +1,76 @@
 const https = require('https');
 
-const testContent = `# 📰 Today's World: 5-Minute Brief
-*${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} | Your Global Update*
-
-**📊 TODAY'S IMPACT TRACKER**  
-*Major Developments: 2 | Key Updates: 3 | Trend Watchers: 3*
-
----
-
-## 🔥 HEADLINE STORY: Global Climate Summit Reaches Historic Agreement
-**What Happened**: World leaders at COP30 in Dubai reached a breakthrough agreement on carbon pricing mechanisms, with 195 countries committing to unified standards by 2027.  
-**The Background**: After years of fragmented approaches, the summit established a global carbon credit system with transparent monitoring and verification protocols.  
-**Why This Matters**: The agreement creates the world's first truly global carbon market, potentially mobilizing $2 trillion annually for climate action while ensuring developing nations receive fair compensation.  
-**Knowledge Connect**: Ties to *environmental economics*, *international cooperation theory* and *sustainable development goals*.  
-**Think Deeper**: How do global agreements balance national sovereignty with collective action needs?  
-**Global Perspective**: Critics worry about implementation challenges and the risk of carbon colonialism in developing nations.  
-**Key Concepts**: *Carbon pricing*, *climate finance*, *technology transfer*, *green transition*, *environmental justice*.
-
----
-
-## ⚡ MAJOR UPDATES
-### European Union Launches Digital Euro Pilot Program  
-**The Development**: The ECB initiated a 12-month pilot program for the digital euro across six member states, testing retail and wholesale applications.  
-**The Significance**: Represents Europe's most significant monetary innovation since the euro's introduction, potentially reshaping global digital currency standards.  
-**Learning Bridge**: Demonstrates *central bank digital currencies (CBDCs)*, *monetary sovereignty* and *financial inclusion* concepts.  
-**Multiple Angles**: Privacy advocates raise concerns about surveillance while economists debate impacts on commercial banking.
-
-### India Achieves 50% Renewable Energy Milestone  
-**The Development**: India's renewable energy capacity reached 200 GW, fulfilling its 2030 target five years early, driven by solar and wind expansion.  
-**The Significance**: Positions India as a global clean energy leader while reducing import dependence and creating 2.3 million green jobs.  
-**Learning Bridge**: Case study in *energy transition*, *industrial policy* and *sustainable development* strategies.  
-**Multiple Angles**: Success highlights policy consistency benefits while raising questions about grid stability and storage needs.
-
----
-
-## 📚 KNOWLEDGE BUILDERS
-### Space Technology Breakthrough in Asteroid Mining  
-**The Update**: NASA's OSIRIS-REx mission successfully extracted rare earth elements from asteroid Bennu, proving commercial viability of space mining.  
-**Broader Context**: Opens new frontiers in *resource economics* and *space commercialization*, potentially solving Earth's critical mineral shortages.  
-**Academic Connection**: Crosses *physics* (orbital mechanics), *economics* (resource scarcity) and *international law* (space governance).
-
-### African Continental Free Trade Area Shows Early Success  
-**The Update**: Intra-African trade increased 15% in the first quarter, with simplified customs procedures reducing border delays by 40%.  
-**Broader Context**: Demonstrates *regional integration* benefits and *trade creation* effects in developing economies.  
-**Academic Connection**: Links to *development economics*, *trade theory* and *regional cooperation* frameworks.
-
----
-
-## ⚡ QUICK INTEL
-• **Tech Innovation** – OpenAI announced GPT-5 with breakthrough reasoning capabilities, sparking new AI safety discussions.  
-• **Health Milestone** – WHO declared malaria eliminated from three more countries, bringing the total to 45 malaria-free nations.  
-• **Economic Data** – Global inflation averaged 2.8% in Q3, the lowest since 2021, signaling monetary policy success.
-
----
-
-## 🧠 TODAY'S KNOWLEDGE TOOLKIT
-**New Concepts Learned**:  
-• *Carbon border adjustments* – Tariffs on high-carbon imports to protect domestic climate policies.  
-• *Digital currency interoperability* – Technical standards enabling cross-border CBDC transactions.  
-• *Space resource rights* – Legal frameworks governing asteroid mining and lunar resource extraction.
-
-**Knowledge Reinforcement**: Shows how environmental policy, monetary innovation, and space technology intersect in shaping future economic systems.
-
-**Discussion Ammunition**:  
-• "Can global carbon pricing avoid creating new forms of economic inequality?"  
-• "Digital currencies vs privacy: where should societies draw the line?"
-
-**Fast Facts**:  
-• 195 countries committed to unified carbon standards.  
-• Digital euro pilot covers 67 million citizens.  
-• Space mining could supply 90% of rare earth demand by 2040.
-
----
-
-## 🔗 THE CONNECTION WEB
-*Climate agreements and digital currencies both require unprecedented global coordination, testing multilateral institutions' effectiveness.*  
-*India's renewable success and Africa's trade growth demonstrate how developing nations can leapfrog traditional development paths.*  
-*Historical parallel*: Today's space mining rush echoes 19th-century resource discoveries, but with global governance frameworks in place.*  
-*Looking ahead*: Climate finance flows may increasingly use digital currencies, creating new monetary-environmental policy linkages.*
-
----
-
-## 🎯 THIS WEEK'S THINKING CHALLENGE
-1. **Policy Analysis** – Design a carbon pricing mechanism that balances environmental effectiveness with economic equity across developed and developing nations.  
-2. **Technology Assessment** – Evaluate the trade-offs between CBDC benefits (financial inclusion, policy effectiveness) and risks (privacy, banking disruption).  
-3. **Future Scenario** – Project how space resource extraction might reshape global supply chains and geopolitical power balances by 2040.
-
----
-
-🌍 **Understanding today's developments builds the knowledge needed for informed citizenship and thoughtful leadership. Stay curious, stay engaged!** ✨`;
+const testContent = {
+  "title": "Today's General Studies Brief",
+  "date": "September 7, 2025",
+  "impact_summary": {
+    "policy_developments": 3,
+    "international_updates": 2,
+    "economic_indicators": 2,
+    "scientific_advances": 1
+  },
+  "primary_focus": {
+    "title": "GST 2.0 Reform Package - Transformational Tax Restructuring",
+    "summary": "The 56th GST Council meeting approved comprehensive GST reforms dubbed 'GST 2.0,' introducing a simplified two-rate structure with standard 18% and merit rate of 5%, effective from September 22, 2025. This represents the most significant tax reform since GST implementation in 2017.",
+    "content": "Union Finance Minister Nirmala Sitharaman announced these reforms as a 'next-generation' initiative, moving away from the current complex multi-tier structure toward global best practices. The new framework streamlines rates, harmonizes classifications, and clarifies tax rules to address long-standing business concerns about complexity and unpredictability. Only select items will remain in the 40% bracket, significantly simplifying compliance procedures for businesses across sectors.",
+    "key_terms": ["GST Council", "Two-rate structure", "Merit goods", "Harmonization", "Tax rationalization"],
+    "exam_relevance": "This connects directly to Public Finance topics in Economics, Constitutional provisions under Article 246A (GST), and the evolution of India's federal taxation system. Students should understand the GST Council's constitutional status as a federal body under Article 279A."
+  },
+  "sections": [
+    {
+      "id": "governance",
+      "title": "Governance and Policy Updates",
+      "summary": "Key policy developments affecting governance structures and administrative reforms",
+      "articles": [
+        {
+          "title": "Immigration and Foreigners Act, 2025 Implementation",
+          "summary": "New comprehensive immigration framework replacing four outdated laws",
+          "content": "The Immigration and Foreigners Act, 2025, recently came into force, replacing four outdated laws and comprehensively overhauling India's immigration system. This legislation modernizes entry, stay, and exit procedures for foreign nationals while strengthening border security mechanisms. The new framework addresses contemporary security challenges while facilitating legitimate travel and business activities.",
+          "key_terms": ["Immigration Act 2025", "Border security", "Digital processing", "Visa procedures"],
+          "citations": [2]
+        },
+        {
+          "title": "Pension System Transformation Deadline",
+          "summary": "Central government employees deadline for UPS transition extended",
+          "content": "Central government employees have until September 30, 2025, to switch from the National Pension System (NPS) to the newly introduced Unified Pension Scheme (UPS). The deadline was extended from June due to initial low response rates from eligible employees. This transition affects millions of central government employees and represents a significant shift in India's pension policy.",
+          "key_terms": ["UPS", "NPS", "Pension reform", "Government employees"],
+          "citations": [3, 5]
+        }
+      ]
+    },
+    {
+      "id": "international",
+      "title": "International Affairs and Global Context",
+      "summary": "Global developments and India's strategic positioning in international relations",
+      "articles": [
+        {
+          "title": "India's Strategic Autonomy in Multipolar World Order",
+          "summary": "India maintains balanced relationships amid US-China rivalry",
+          "content": "India continues to navigate complex geopolitical relationships, maintaining strategic partnerships with both Western allies and traditional partners like Russia while building leadership in the Global South. Recent diplomatic engagements demonstrate India's multi-alignment policy amid intensifying US-China rivalry. This strategy involves diversified defense procurement, balanced energy partnerships, and independent positions on global conflicts.",
+          "key_terms": ["Strategic autonomy", "Multi-alignment", "Global South", "Geopolitical balance"],
+          "citations": [6]
+        }
+      ]
+    }
+  ],
+  "rapid_updates": [
+    {
+      "category": "Economic Development",
+      "content": "India-EFTA trade agreement takes effect October 1, 2025, promising $100 billion investments and one million jobs while reducing tariffs on key goods",
+      "citations": [7]
+    },
+    {
+      "category": "Administrative Reform",
+      "content": "Registered Post services merged with Speed Post from September 1, 2025, streamlining India Post operations and improving delivery efficiency",
+      "citations": [3]
+    },
+    {
+      "category": "Environment",
+      "content": "Climate Risk Index 2025 ranks India sixth globally among most affected countries with economic losses exceeding $180 billion from climate disasters (1993-2022)",
+      "citations": [18]
+    }
+  ]
+};
 
 async function testWebhook() {
   const data = JSON.stringify({

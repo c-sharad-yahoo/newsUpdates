@@ -87,8 +87,8 @@ class ContentStorage {
       // Add new article to beginning
       webhookArticles.unshift(article);
       
-      // Keep only last 100 webhook articles to prevent file from growing too large
-      const limitedArticles = webhookArticles.slice(0, 100);
+      // No automatic pruning - keep all articles
+      const limitedArticles = webhookArticles;
       
       // Save to file
       await fs.writeFile(this.webhookArticlesFile, JSON.stringify(limitedArticles, null, 2));
@@ -160,58 +160,33 @@ class ContentStorage {
   }
 
 
-  parseMarkdownContent(markdown) {
-    // Configure marked options for better formatting
-    marked.setOptions({
-      breaks: true,
-      gfm: true,
-      headerIds: false,
-      mangle: false
-    });
-
-    // Extract title from first heading
-    const titleMatch = markdown.match(/^#\s+(.+)$/m);
-    const title = titleMatch ? titleMatch[1].replace(/📰|✨|🌍/g, '').trim() : 'Daily Brief Update';
-    
+  processJsonContent(jsonData) {
     const publishedAt = new Date().toISOString();
     const date = new Date().toISOString().split('T')[0];
-    
-    // Extract excerpt from first substantial paragraph
-    const contentLines = markdown.split('\n').filter(line => line.trim());
-    const firstParagraph = contentLines.find(line => 
-      !line.startsWith('#') && 
-      !line.startsWith('*') && 
-      !line.startsWith('**') && 
-      !line.startsWith('---') &&
-      line.length > 50
-    );
-    
-    const excerpt = firstParagraph 
-      ? firstParagraph.substring(0, 200) + '...'
-      : 'Today\'s essential news analysis and global updates.';
-    
-    // Convert markdown to HTML using marked
-    const content = marked.parse(markdown);
-    
-    // Set fixed category for all articles
-    const category = 'General Studies';
-    
     const month = new Date(date).toLocaleDateString('en-US', { month: 'long' });
     const year = new Date(date).getFullYear().toString();
     
+    // Generate excerpt from primary focus summary
+    const excerpt = jsonData.primary_focus?.summary || 'Today\'s essential news analysis and global updates.';
+    
     return {
-      id: this.generateArticleId(title, publishedAt),
-      title,
-      excerpt,
-      content,
-      date,
+      id: this.generateArticleId(jsonData.title, publishedAt),
+      title: jsonData.title,
+      date: jsonData.date || date,
       publishedAt,
       readingTime: '5 min',
-      category,
+      category: 'General Studies',
       month,
       year,
       featured: true,
-      source: 'webhook'
+      source: 'webhook',
+      excerpt,
+      
+      // New JSON structure
+      impact_summary: jsonData.impact_summary,
+      primary_focus: jsonData.primary_focus,
+      sections: jsonData.sections || [],
+      rapid_updates: jsonData.rapid_updates || []
     };
   }
 
