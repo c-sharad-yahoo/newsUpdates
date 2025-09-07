@@ -17,7 +17,7 @@
   "scripts": {
     "dev": "vite",
     "dev:server": "concurrently \"npm run server\" \"npm run dev\"",
-    "server": "nodemon server/index.cjs",
+    "server": "node server/index.cjs",
     "build": "tsc && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
