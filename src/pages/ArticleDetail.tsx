@@ -9,6 +9,27 @@ const ArticleDetail: React.FC = () => {
   
   const article = articles.find(a => a.id === id) || null;
 
+  // Debug logging
+  console.log("All articles:", articles);
+  console.log("Looking for article with id:", id);
+  console.log("URL params - year:", year, "month:", month, "id:", id);
+  console.log("Found article:", article);
+  
+  if (article) {
+    console.log("Article sections:", article.sections);
+    console.log("Number of sections:", article.sections?.length);
+    console.log("Knowledge synthesis:", article.knowledge_synthesis);
+    console.log("Weekly analysis:", article.weekly_analysis);
+    
+    // Log section articles for debugging
+    article.sections?.forEach((section, sectionIndex) => {
+      console.log(`Section ${sectionIndex} (${section.title}):`, section.articles?.length, 'articles');
+      section.articles?.forEach((sectionArticle, articleIndex) => {
+        console.log(`  Article ${articleIndex}:`, Object.keys(sectionArticle));
+      });
+    });
+  }
+
   const currentIndex = articles.findIndex(a => a.id === id);
   const previousArticle = currentIndex > 0 ? articles[currentIndex - 1] : null;
   const nextArticle = currentIndex < articles.length - 1 ? articles[currentIndex + 1] : null;
