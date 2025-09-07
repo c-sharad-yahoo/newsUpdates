@@ -194,6 +194,8 @@ class ContentStorage {
       primary_focus: jsonData.primary_focus,
       sections: jsonData.sections || [],
       rapid_updates: jsonData.rapid_updates || [],
+      knowledge_synthesis: jsonData.knowledge_synthesis || {},
+      weekly_analysis: jsonData.weekly_analysis || {},
       exam_intelligence: jsonData.exam_intelligence || {
         new_concepts: "",
         static_dynamic_connections: "",

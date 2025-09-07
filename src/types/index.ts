@@ -27,13 +27,11 @@ export interface PrimaryFocus {
 export interface ArticleItem {
   title: string;
   summary: string;
-  development_overview?: string;
-  policy_significance?: string;
-  exam_connection?: string;
-  analytical_perspectives?: string;
-  content?: string;
   key_terms: string[];
   citations: number[];
+  content?: string;
+  // Allow any additional string properties for dynamic content
+  [key: string]: string | string[] | number[] | undefined;
 }
 
 export interface Section {
@@ -57,6 +55,19 @@ export interface ExamIntelligence {
   comparative_analysis: string;
 }
 
+export interface KnowledgeSynthesis {
+  cross_subject_connections?: string;
+  historical_parallels?: string;
+  predictive_analysis?: string;
+  debate_points?: string;
+}
+
+export interface WeeklyAnalysis {
+  emerging_trends?: string;
+  policy_trajectory?: string;
+  economic_indicators?: string;
+}
+
 export interface Article {
   id: string;
   title: string;
@@ -76,6 +87,8 @@ export interface Article {
   sections: Section[];
   rapid_updates: RapidUpdate[];
   exam_intelligence: ExamIntelligence;
+  knowledge_synthesis?: KnowledgeSynthesis;
+  weekly_analysis?: WeeklyAnalysis;
   
   // Legacy fields for backward compatibility
   excerpt?: string;

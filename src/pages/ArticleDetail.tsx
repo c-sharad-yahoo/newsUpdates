@@ -249,37 +249,30 @@ const ArticleDetail: React.FC = () => {
                     <h3 className="article-title">{sectionArticle.title}</h3>
                     <div className="article-summary">{sectionArticle.summary}</div>
                     
-                    {/* Development Overview */}
-                    {sectionArticle.development_overview && (
-                      <div className="development-overview">
-                        <h4 className="development-overview-title">📋 Development Overview</h4>
-                        <div className="development-overview-content">{sectionArticle.development_overview}</div>
-                      </div>
-                    )}
-                    
-                    {/* Policy Significance */}
-                    {sectionArticle.policy_significance && (
-                      <div className="policy-significance">
-                        <h4 className="policy-significance-title">⚖️ Policy Significance</h4>
-                        <div className="policy-significance-content">{sectionArticle.policy_significance}</div>
-                      </div>
-                    )}
-                    
-                    {/* Exam Connection */}
-                    {sectionArticle.exam_connection && (
-                      <div className="exam-connection">
-                        <h4 className="exam-connection-title">🎓 Exam Connection</h4>
-                        <div className="exam-connection-content">{sectionArticle.exam_connection}</div>
-                      </div>
-                    )}
-                    
-                    {/* Analytical Perspectives */}
-                    {sectionArticle.analytical_perspectives && (
-                      <div className="analytical-perspectives">
-                        <h4 className="analytical-perspectives-title">🔍 Analytical Perspectives</h4>
-                        <div className="analytical-perspectives-content">{sectionArticle.analytical_perspectives}</div>
-                      </div>
-                    )}
+                    {/* Dynamic Content Rendering */}
+                    {(() => {
+                      const excludedKeys = ['title', 'summary', 'key_terms', 'citations', 'content'];
+                      const contentKeys = Object.keys(sectionArticle).filter(key => 
+                        !excludedKeys.includes(key) && 
+                        typeof sectionArticle[key] === 'string' && 
+                        sectionArticle[key]?.trim()
+                      );
+                      
+                      return contentKeys.map((key, index) => {
+                        // Convert snake_case to Title Case
+                        const title = key
+                          .split('_')
+                          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                          .join(' ');
+                        
+                        return (
+                          <div key={index} className="dynamic-content-section">
+                            <h4 className="dynamic-content-title">📄 {title}</h4>
+                            <div className="dynamic-content-body">{sectionArticle[key] as string}</div>
+                          </div>
+                        );
+                      });
+                    })()}
                     
                     {/* Legacy content field */}
                     {sectionArticle.content && (
@@ -387,6 +380,64 @@ const ArticleDetail: React.FC = () => {
                     <div className="exam-section-content">{article.exam_intelligence.comparative_analysis}</div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Knowledge Synthesis */}
+            {article.knowledge_synthesis && (
+              <div className="exam-intelligence">
+                <h2 className="exam-intelligence-title">
+                  <Brain className="inline w-6 h-6 mr-2 text-green-600" />
+                  🔗 Knowledge Synthesis
+                </h2>
+                
+                {Object.entries(article.knowledge_synthesis).map(([key, value]) => {
+                  if (!value || typeof value !== 'string') return null;
+                  
+                  const title = key
+                    .split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+                  
+                  return (
+                    <div key={key} className="exam-section">
+                      <h3 className="exam-section-title">
+                        <Globe className="inline w-5 h-5 mr-2 text-green-600" />
+                        {title}
+                      </h3>
+                      <div className="exam-section-content">{value}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Weekly Analysis */}
+            {article.weekly_analysis && (
+              <div className="exam-intelligence">
+                <h2 className="exam-intelligence-title">
+                  <TrendingUp className="inline w-6 h-6 mr-2 text-blue-600" />
+                  📊 Weekly Analysis
+                </h2>
+                
+                {Object.entries(article.weekly_analysis).map(([key, value]) => {
+                  if (!value || typeof value !== 'string') return null;
+                  
+                  const title = key
+                    .split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+                  
+                  return (
+                    <div key={key} className="exam-section">
+                      <h3 className="exam-section-title">
+                        <BarChart3 className="inline w-5 h-5 mr-2 text-blue-600" />
+                        {title}
+                      </h3>
+                      <div className="exam-section-content">{value}</div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </>
