@@ -9,32 +9,6 @@ const ArticleDetail: React.FC = () => {
   
   const article = articles.find(a => a.id === id) || null;
 
-  // Debug logging
-  console.log("All articles:", articles);
-  console.log("Looking for article with id:", id);
-  console.log("URL params - year:", year, "month:", month, "id:", id);
-  console.log("Found article:", article);
-  
-  if (article) {
-    console.log("Article sections:", article.sections);
-    console.log("Number of sections:", article.sections?.length);
-    console.log("Knowledge synthesis:", article.knowledge_synthesis);
-    console.log("Weekly analysis:", article.weekly_analysis);
-    
-    // Log section articles for debugging
-    article.sections?.forEach((section, sectionIndex) => {
-      console.log(`Section ${sectionIndex} (${section.title}):`, section.articles?.length, 'articles');
-      section.articles?.forEach((sectionArticle, articleIndex) => {
-        console.log(`  Article ${articleIndex} (${sectionArticle.title}):`, Object.keys(sectionArticle));
-        console.log(`    Available fields:`, Object.keys(sectionArticle).filter(key => 
-          !['title', 'summary', 'key_terms', 'citations'].includes(key) && 
-          typeof sectionArticle[key] === 'string' && 
-          sectionArticle[key]?.trim()
-        ));
-      });
-    });
-  }
-
   const currentIndex = articles.findIndex(a => a.id === id);
   const previousArticle = currentIndex > 0 ? articles[currentIndex - 1] : null;
   const nextArticle = currentIndex < articles.length - 1 ? articles[currentIndex + 1] : null;
@@ -272,30 +246,63 @@ const ArticleDetail: React.FC = () => {
                 
                 {section.articles && section.articles.map((sectionArticle, articleIndex) => (
                   <div key={articleIndex} className="article">
-                    {/* Dynamic Content Rendering - Fixed Logic */}
-                    {Object.entries(sectionArticle).map(([key, value]) => {
-                      // Skip standard fields and non-string values
-                      if (['title', 'summary', 'key_terms', 'citations'].includes(key)) {
+                    <h3 className="article-title">{sectionArticle.title}</h3>
+                    
+                    {sectionArticle.summary && (
+                      <div className="article-summary">{sectionArticle.summary}</div>
+                    )}
+                    
+                    {/* Render all dynamic content fields */}
+                    {Object.entries(sectionArticle).map(([fieldKey, fieldValue]) => {
+                      // Skip standard fields that are already rendered
+                      if (['title', 'summary', 'key_terms', 'citations'].includes(fieldKey)) {
                         return null;
                       }
                       
-                      // Only render string values with actual content
-                      if (typeof value !== 'string' || !value || value.trim().length === 0) {
+                      // Only render string fields with content
+                      if (typeof fieldValue !== 'string' || !fieldValue.trim()) {
                         return null;
                       }
                       
-                      // Convert snake_case to Title Case
-                      const title = key
+                      // Convert field key to display title
+                      const displayTitle = fieldKey
                         .split('_')
                         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                         .join(' ');
                       
+                      // Get appropriate icon for the field
+                      const getFieldIcon = (key: string) => {
+                        const iconMap: { [key: string]: string } = {
+                          'development_overview': '📄',
+                          'policy_significance': '⚖️',
+                          'exam_connection': '🎓',
+                          'analytical_perspectives': '🔍',
+                          'global_update': '🌍',
+                          'strategic_analysis': '🎯',
+                          'geopolitical_context': '🗺️',
+                          'exam_relevance': '🎯',
+                          'economic_update': '📈',
+                          'impact_assessment': '📊',
+                          'policy_analysis': '📋',
+                          'conceptual_learning': '🧠',
+                          'research_update': '🔬',
+                          'practical_applications': '⚙️',
+                          'scientific_principles': '🧪',
+                          'exam_integration': '📚',
+                          'social_update': '👥',
+                          'stakeholder_impact': '🤝',
+                          'policy_framework': '🏛️',
+                          'sociological_insights': '💡'
+                        };
+                        return iconMap[key] || '📄';
+                      };
+                      
                       return (
-                        <div key={key} className="dynamic-content-section">
+                        <div key={fieldKey} className="dynamic-content-section">
                           <h4 className="dynamic-content-title">
-                            {getIconForField(key)} {title}
+                            {getFieldIcon(fieldKey)} {displayTitle}
                           </h4>
-                          <div className="dynamic-content-body">{value}</div>
+                          <div className="dynamic-content-body">{fieldValue}</div>
                         </div>
                       );
                     })}
@@ -501,34 +508,6 @@ const ArticleDetail: React.FC = () => {
       </div>
     </div>
   );
-};
-
-// Helper function to get appropriate icons for different field types
-const getIconForField = (fieldName: string): string => {
-  const iconMap: { [key: string]: string } = {
-    'development_overview': '📄',
-    'policy_significance': '⚖️',
-    'exam_connection': '🎓',
-    'analytical_perspectives': '🔍',
-    'global_update': '🌍',
-    'strategic_analysis': '🎯',
-    'geopolitical_context': '🗺️',
-    'economic_update': '📈',
-    'impact_assessment': '📊',
-    'policy_analysis': '📋',
-    'conceptual_learning': '🧠',
-    'research_update': '🔬',
-    'practical_applications': '⚙️',
-    'scientific_principles': '🧪',
-    'exam_integration': '📚',
-    'social_update': '👥',
-    'stakeholder_impact': '🤝',
-    'policy_framework': '🏛️',
-    'sociological_insights': '💡',
-    'exam_relevance': '🎯'
-  };
-  
-  return iconMap[fieldName] || '📄';
 };
 
 export default ArticleDetail;
