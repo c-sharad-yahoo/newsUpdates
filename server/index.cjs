@@ -2,16 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const fs = require('fs').promises;
 const path = require('path');
 const cron = require('node-cron');
+const ArticleDatabase = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// In-memory storage for articles (in production, use a database)
-let articles = [];
-let monthlyData = [];
+// Initialize database
+const db = new ArticleDatabase();
 
 // Middleware
 app.use(helmet());
@@ -100,81 +99,15 @@ const parseMarkdownContent = (markdown) => {
 
 const addArticle = (newArticle) => {
   // Remove featured flag from existing articles
-  articles = articles.map(article => ({
-    ...article,
-    featured: false
-  }));
+  db.db.prepare('UPDATE articles SET featured = 0').run();
   
-  // Add new article at the beginning
-  articles.unshift(newArticle);
-  
-  // Update monthly data
-  const existingMonthIndex = monthlyData.findIndex(
-    m => m.month === newArticle.month && m.year === newArticle.year
-  );
-  
-  if (existingMonthIndex >= 0) {
-    monthlyData[existingMonthIndex].articleCount += 1;
-    monthlyData[existingMonthIndex].featuredStory = newArticle.title;
-  } else {
-    monthlyData.unshift({
-      month: newArticle.month,
-      year: newArticle.year,
-      articleCount: 1,
-      premiumCount: 0,
-      featuredStory: newArticle.title
-    });
-  }
+  // Add new article
+  db.addArticle(newArticle);
 };
 
 const markArticlesAsPremium = () => {
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  
-  articles.forEach(article => {
-    const publishDate = new Date(article.publishedAt);
-    if (publishDate < sevenDaysAgo && !article.isPremium) {
-      article.isPremium = true;
-      
-      // Update monthly data premium count
-      const monthData = monthlyData.find(
-        m => m.month === article.month && m.year === article.year
-      );
-      if (monthData) {
-        monthData.premiumCount += 1;
-      }
-    }
-  });
+  db.markArticlesAsPremium();
 };
-
-// Initialize with sample data
-const initializeData = () => {
-  const sampleArticle = {
-    id: 'jan-20-todays-world-brief',
-    title: "Today's World: 5-Minute Brief",
-    excerpt: "China's Strategic Power Play Reshapes Global Order while India cuts GST rates to boost consumption.",
-    content: '<h1>📰 Today\'s World: 5-Minute Brief</h1><p><em>January 20 2025 | Your Global Update</em></p>',
-    date: '2025-01-20',
-    publishedAt: new Date().toISOString(),
-    readingTime: '5 min',
-    category: 'Global News',
-    month: 'January',
-    year: '2025',
-    featured: true,
-    isPremium: false
-  };
-  
-  articles = [sampleArticle];
-  monthlyData = [{
-    month: 'January',
-    year: '2025',
-    articleCount: 1,
-    premiumCount: 0,
-    featuredStory: sampleArticle.title
-  }];
-};
-
-// Initialize data on startup
-initializeData();
 
 // Schedule daily premium check (runs every day at midnight)
 cron.schedule('0 0 * * *', () => {
@@ -230,11 +163,7 @@ app.get('/api/articles', async (req, res) => {
     const { isPremium = 'false' } = req.query;
     const userIsPremium = isPremium === 'true';
     
-    let filteredArticles = articles;
-    
-    if (!userIsPremium) {
-      filteredArticles = articles.filter(article => !article.isPremium);
-    }
+    const filteredArticles = db.getAllArticles(userIsPremium);
     
     res.json(filteredArticles);
   } catch (error) {
@@ -245,12 +174,13 @@ app.get('/api/articles', async (req, res) => {
 
 // API endpoint to get monthly data
 app.get('/api/monthly-data', (req, res) => {
-  res.json(monthlyData);
+  res.json(db.getMonthlyData());
 });
 
 // API endpoint for premium check
 app.get('/api/article/:id/premium-check', (req, res) => {
   const { id } = req.params;
+  const articles = db.getAllArticles(true);
   const article = articles.find(a => a.id === id);
   
   if (!article) {
