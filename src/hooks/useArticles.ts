@@ -12,29 +12,30 @@ export function useArticles(isPremium: boolean = false) {
         setLoading(true);
         setError(null);
         
-        console.log('Loading articles, isPremium:', isPremium);
+        console.log('🔍 Loading articles, isPremium:', isPremium);
         
         // Try API first (production and development with server)
         const apiUrl = `/api/articles?isPremium=${isPremium}`;
-        console.log('Fetching from:', apiUrl);
+        console.log('🌐 Fetching from:', apiUrl);
         const response = await fetch(apiUrl);
         
         if (response.ok) {
           const data = await response.json();
-          console.log('API response data:', data);
+          console.log('📄 API response data:', data);
+          console.log('📊 Number of articles:', data.length);
           setArticles(data);
         } else {
-          console.log('API response not ok:', response.status, response.statusText);
+          console.log('❌ API response not ok:', response.status, response.statusText);
           throw new Error('API not available');
         }
       } catch (err) {
-        console.log('API not available, using fallback articles:', err);
+        console.log('⚠️ API not available, using fallback articles:', err);
         setError('Unable to load articles from server');
         
         // Fallback to static articles (development without server)
         try {
           const { articles: staticArticles } = await import('../data/articles');
-          console.log('Fallback articles loaded:', staticArticles);
+          console.log('📚 Fallback articles loaded:', staticArticles);
           setArticles(staticArticles);
         } catch (importError) {
           console.error('Failed to load fallback articles:', importError);
@@ -49,7 +50,9 @@ export function useArticles(isPremium: boolean = false) {
   }, [isPremium]);
 
   const refetch = () => {
-    loadArticles();
+    // Trigger a re-fetch by updating the effect dependency
+    setLoading(true);
+    setError(null);
   };
 
   return { articles, loading, error, refetch };
