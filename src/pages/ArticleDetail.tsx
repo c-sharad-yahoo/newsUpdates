@@ -272,36 +272,33 @@ const ArticleDetail: React.FC = () => {
                 
                 {section.articles && section.articles.map((sectionArticle, articleIndex) => (
                   <div key={articleIndex} className="article">
-                    <h3 className="article-title">{sectionArticle.title}</h3>
-                    <div className="article-summary">{sectionArticle.summary}</div>
-                    
-                    {/* Dynamic Content Rendering */}
-                    {(() => {
-                      const excludedKeys = ['title', 'summary', 'key_terms', 'citations'];
-                      const contentKeys = Object.keys(sectionArticle).filter(key => 
-                        !excludedKeys.includes(key) && 
-                        typeof sectionArticle[key] === 'string' && 
-                        sectionArticle[key]?.trim() &&
-                        sectionArticle[key].length > 0
-                      );
+                    {/* Dynamic Content Rendering - Fixed Logic */}
+                    {Object.entries(sectionArticle).map(([key, value]) => {
+                      // Skip standard fields and non-string values
+                      if (['title', 'summary', 'key_terms', 'citations'].includes(key)) {
+                        return null;
+                      }
                       
-                      return contentKeys.map((key, index) => {
-                        // Convert snake_case to Title Case
-                        const title = key
-                          .split('_')
-                          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                          .join(' ');
-                        
-                        return (
-                          <div key={index} className="dynamic-content-section">
-                            <h4 className="dynamic-content-title">
-                              {getIconForField(key)} {title}
-                            </h4>
-                            <div className="dynamic-content-body">{sectionArticle[key] as string}</div>
-                          </div>
-                        );
-                      });
-                    })()}
+                      // Only render string values with actual content
+                      if (typeof value !== 'string' || !value || value.trim().length === 0) {
+                        return null;
+                      }
+                      
+                      // Convert snake_case to Title Case
+                      const title = key
+                        .split('_')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ');
+                      
+                      return (
+                        <div key={key} className="dynamic-content-section">
+                          <h4 className="dynamic-content-title">
+                            {getIconForField(key)} {title}
+                          </h4>
+                          <div className="dynamic-content-body">{value}</div>
+                        </div>
+                      );
+                    })}
                     
                     {sectionArticle.key_terms && sectionArticle.key_terms.length > 0 && (
                       <div className="key-terms">
@@ -509,6 +506,10 @@ const ArticleDetail: React.FC = () => {
 // Helper function to get appropriate icons for different field types
 const getIconForField = (fieldName: string): string => {
   const iconMap: { [key: string]: string } = {
+    'development_overview': '📄',
+    'policy_significance': '⚖️',
+    'exam_connection': '🎓',
+    'analytical_perspectives': '🔍',
     'global_update': '🌍',
     'strategic_analysis': '🎯',
     'geopolitical_context': '🗺️',
@@ -524,10 +525,6 @@ const getIconForField = (fieldName: string): string => {
     'stakeholder_impact': '🤝',
     'policy_framework': '🏛️',
     'sociological_insights': '💡',
-    'development_overview': '📄',
-    'policy_significance': '⚖️',
-    'exam_connection': '🎓',
-    'analytical_perspectives': '🔍',
     'exam_relevance': '🎯'
   };
   
