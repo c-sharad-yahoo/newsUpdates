@@ -4,7 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
 const cron = require('node-cron');
-const ContentStorage = require('./storage');
+const ContentStorage = require('./storage.cjs');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
