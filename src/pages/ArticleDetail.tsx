@@ -173,7 +173,7 @@ const ArticleDetail: React.FC = () => {
                 </div>
                 
                 <div className="article-content">
-                  {article.primary_focus.content.split('\n').map((paragraph, index) => (
+                  {(article.primary_focus.content || '').split('\n').map((paragraph, index) => (
                     paragraph.trim() && <p key={index}>{paragraph}</p>
                   ))}
                 </div>
@@ -284,7 +284,7 @@ const ArticleDetail: React.FC = () => {
                     {/* Legacy content field */}
                     {sectionArticle.content && (
                       <div className="article-content">
-                        {sectionArticle.content.split('\n').map((paragraph, index) => (
+                        {(sectionArticle.content || '').split('\n').map((paragraph, index) => (
                           paragraph.trim() && <p key={index}>{paragraph}</p>
                         ))}
                       </div>
