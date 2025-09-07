@@ -114,17 +114,12 @@ class ContentStorage {
           month: article.month,
           year: article.year,
           articleCount: 0,
-          premiumCount: 0,
           featuredStory: ''
         });
       }
       
       const monthData = monthlyMap.get(key);
       monthData.articleCount++;
-      
-      if (article.isPremium) {
-        monthData.premiumCount++;
-      }
       
       // Set featured story to the first (newest) article of the month
       if (!monthData.featuredStory) {
@@ -151,13 +146,8 @@ class ContentStorage {
     }
   }
 
-  getAllArticles(isPremium = false) {
-    if (isPremium) {
-      return this.articles;
-    }
-    
-    // Filter out premium articles for non-premium users
-    return this.articles.filter(article => !article.isPremium);
+  getAllArticles() {
+    return this.articles;
   }
 
   getMonthlyData() {
@@ -168,30 +158,6 @@ class ContentStorage {
     return this.articles.find(article => article.id === id);
   }
 
-  async markArticlesAsPremium() {
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    let updated = false;
-    
-    // Mark articles older than 7 days as premium
-    this.articles.forEach(article => {
-      const publishedDate = new Date(article.publishedAt);
-      if (publishedDate < sevenDaysAgo && !article.isPremium) {
-        article.isPremium = true;
-        updated = true;
-      }
-    });
-    
-    if (updated) {
-      // Update webhook articles file
-      const webhookArticles = this.articles.filter(article => article.source === 'webhook');
-      await fs.writeFile(this.webhookArticlesFile, JSON.stringify(webhookArticles, null, 2));
-      
-      // Regenerate monthly data
-      await this.generateMonthlyData();
-      
-      console.log('Articles marked as premium based on age');
-    }
-  }
 
   parseMarkdownContent(markdown) {
     // Extract title from first heading
@@ -253,7 +219,6 @@ class ContentStorage {
       month,
       year,
       featured: true,
-      isPremium: false,
       source: 'webhook'
     };
   }

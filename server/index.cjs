@@ -3,7 +3,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
-const cron = require('node-cron');
 const ContentStorage = require('./storage.cjs');
 
 const app = express();
@@ -21,12 +20,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from React build
 app.use(express.static(path.join(__dirname, '../dist')));
-
-// Schedule daily premium check (runs every day at midnight)
-cron.schedule('0 0 * * *', () => {
-  console.log('Running daily premium check...');
-  storage.markArticlesAsPremium();
-});
 
 // Webhook endpoint for receiving daily updates
 app.post('/api/webhook/daily-update', async (req, res) => {
@@ -70,15 +63,12 @@ app.post('/api/webhook/daily-update', async (req, res) => {
   }
 });
 
-// API endpoint to get articles (filtered by user premium status)
+// API endpoint to get articles
 app.get('/api/articles', async (req, res) => {
   try {
-    const { isPremium = 'false' } = req.query;
-    const userIsPremium = isPremium === 'true';
+    const articles = storage.getAllArticles();
     
-    const filteredArticles = storage.getAllArticles(userIsPremium);
-    
-    res.json(filteredArticles);
+    res.json(articles);
   } catch (error) {
     console.error('Error fetching articles:', error);
     res.status(500).json({ error: 'Failed to fetch articles' });
@@ -90,28 +80,13 @@ app.get('/api/monthly-data', (req, res) => {
   res.json(storage.getMonthlyData());
 });
 
-// API endpoint for premium check
-app.get('/api/article/:id/premium-check', (req, res) => {
-  const { id } = req.params;
-  const article = storage.getArticleById(id);
-  
-  if (!article) {
-    return res.status(404).json({ error: 'Article not found' });
-  }
-  
-  res.json({ 
-    isPremium: article.isPremium,
-    publishedAt: article.publishedAt 
-  });
-});
-
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    articlesCount: storage.getAllArticles(true).length
+    articlesCount: storage.getAllArticles().length
   });
 });
 
@@ -135,8 +110,7 @@ app.listen(PORT, async () => {
   
   console.log(`Daily Brief server running on port ${PORT}`);
   console.log(`Webhook endpoint: http://localhost:${PORT}/api/webhook/daily-update`);
-  console.log('Daily premium check scheduled for midnight');
-  console.log(`Loaded ${storage.getAllArticles(true).length} articles`);
+  console.log(`Loaded ${storage.getAllArticles().length} articles`);
 });
 
 module.exports = app;

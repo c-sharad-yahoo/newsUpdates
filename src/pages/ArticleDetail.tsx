@@ -1,23 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Calendar, Clock, ArrowLeft, ArrowRight, Share2, Twitter, MessageCircle } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import { Calendar, Clock, ArrowLeft, ArrowRight, Share2 } from 'lucide-react';
 import { useArticles } from '../hooks/useArticles';
-import PremiumGate from '../components/PremiumGate';
 
 const ArticleDetail: React.FC = () => {
   const { year, month, id } = useParams<{ year: string; month: string; id: string }>();
-  const { user } = useAuth();
-  const { articles, loading: isLoading, error } = useArticles(user?.isPremium || false);
+  const { articles, loading: isLoading, error } = useArticles();
   
   const article = articles.find(a => a.id === id) || null;
 
   const currentIndex = articles.findIndex(a => a.id === id);
   const previousArticle = currentIndex > 0 ? articles[currentIndex - 1] : null;
   const nextArticle = currentIndex < articles.length - 1 ? articles[currentIndex + 1] : null;
-  const relatedArticles = articles
-    .filter(a => a.category === article?.category && a.id !== id)
-    .slice(0, 3);
 
   const capitalizeMonth = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -66,20 +60,16 @@ const ArticleDetail: React.FC = () => {
   const shareUrl = window.location.href;
   const shareTitle = article.title;
 
-  const handleShare = (platform: string) => {
-    let url = '';
-    switch (platform) {
-      case 'twitter':
-        url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTitle)}&url=${encodeURIComponent(shareUrl)}`;
-        break;
-      case 'whatsapp':
-        url = `https://wa.me/?text=${encodeURIComponent(`${shareTitle} ${shareUrl}`)}`;
-        break;
-      case 'telegram':
-        url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`;
-        break;
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: shareTitle,
+        url: shareUrl,
+      });
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      alert('Link copied to clipboard!');
     }
-    window.open(url, '_blank');
   };
 
   return (
@@ -126,53 +116,25 @@ const ArticleDetail: React.FC = () => {
             </p>
           </div>
 
-          {/* Share Buttons */}
-          <div className="flex items-center space-x-4 pt-6 border-t border-gray-200">
-            <span className="text-sm font-medium text-gray-700 flex items-center">
-              <Share2 className="w-4 h-4 mr-2" />
-              Share:
-            </span>
+          {/* Share Button */}
+          <div className="flex items-center pt-6 border-t border-gray-200">
             <button
-              onClick={() => handleShare('twitter')}
-              className="flex items-center space-x-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm"
+              onClick={handleShare}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
             >
-              <Twitter className="w-4 h-4" />
-              <span>Twitter</span>
-            </button>
-            <button
-              onClick={() => handleShare('whatsapp')}
-              className="flex items-center space-x-2 px-3 py-1.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>WhatsApp</span>
-            </button>
-            <button
-              onClick={() => handleShare('telegram')}
-              className="flex items-center space-x-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm"
-            >
-              <span>Telegram</span>
+              <Share2 className="w-4 h-4" />
+              <span>Share Article</span>
             </button>
           </div>
         </div>
 
         {/* Article Content */}
-        {article.isPremium && !user?.isPremium ? (
-          <PremiumGate
-            title="Premium Article"
-            description="This article has been moved to our premium archive. Upgrade to access all archived content."
-          >
-            <div className="bg-white rounded-2xl p-8 mb-8 shadow-sm border border-gray-200">
-              <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: article.content }} />
-            </div>
-          </PremiumGate>
-        ) : (
-          <div className="bg-white rounded-2xl p-8 mb-8 shadow-sm border border-gray-200">
-            <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: article.content }} />
-          </div>
-        )}
+        <div className="bg-white rounded-2xl p-8 mb-8 shadow-sm border border-gray-200">
+          <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: article.content }} />
+        </div>
 
         {/* Navigation */}
-        <div className="bg-white rounded-2xl p-6 mb-8 shadow-sm border border-gray-200">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
             {previousArticle ? (
               <Link
@@ -203,37 +165,6 @@ const ArticleDetail: React.FC = () => {
             )}
           </div>
         </div>
-
-        {/* Related Articles */}
-        {relatedArticles.length > 0 && (
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">Related Articles</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {relatedArticles.map((relatedArticle) => (
-                <Link
-                  key={relatedArticle.id}
-                  to={`/${relatedArticle.year.toLowerCase()}/${relatedArticle.month.toLowerCase()}/${relatedArticle.id}`}
-                  className="group"
-                >
-                  <div className="border border-gray-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all">
-                    <div className="flex items-center space-x-2 mb-3">
-                      <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs font-medium">
-                        {relatedArticle.category}
-                      </span>
-                      <span className="text-xs text-gray-500">{relatedArticle.readingTime}</span>
-                    </div>
-                    <h4 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
-                      {relatedArticle.title}
-                    </h4>
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      {relatedArticle.excerpt}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

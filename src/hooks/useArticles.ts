@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Article } from '../types';
 
-export function useArticles(isPremium: boolean = false) {
+export function useArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -12,30 +12,22 @@ export function useArticles(isPremium: boolean = false) {
         setLoading(true);
         setError(null);
         
-        console.log('🔍 Loading articles, isPremium:', isPremium);
-        
-        // Try API first (production and development with server)
-        const apiUrl = `/api/articles?isPremium=${isPremium}`;
-        console.log('🌐 Fetching from:', apiUrl);
-        const response = await fetch(apiUrl);
+        // Try API first
+        const response = await fetch('/api/articles');
         
         if (response.ok) {
           const data = await response.json();
-          console.log('📄 API response data:', data);
-          console.log('📊 Number of articles:', data.length);
           setArticles(data);
         } else {
-          console.log('❌ API response not ok:', response.status, response.statusText);
           throw new Error('API not available');
         }
       } catch (err) {
-        console.log('⚠️ API not available, using fallback articles:', err);
+        console.log('API not available, using fallback articles');
         setError('Unable to load articles from server');
         
-        // Fallback to static articles (development without server)
+        // Fallback to static articles
         try {
           const { articles: staticArticles } = await import('../data/articles');
-          console.log('📚 Fallback articles loaded:', staticArticles);
           setArticles(staticArticles);
         } catch (importError) {
           console.error('Failed to load fallback articles:', importError);
@@ -47,15 +39,9 @@ export function useArticles(isPremium: boolean = false) {
     }
 
     loadArticles();
-  }, [isPremium]);
+  }, []);
 
-  const refetch = () => {
-    // Trigger a re-fetch by updating the effect dependency
-    setLoading(true);
-    setError(null);
-  };
-
-  return { articles, loading, error, refetch };
+  return { articles, loading, error };
 }
 
 export function useMonthlyData() {
@@ -79,15 +65,7 @@ export function useMonthlyData() {
       } catch (err) {
         console.log('Monthly data API not available');
         setError('Unable to load monthly data from server');
-        
-        // Fallback to static monthly data
-        try {
-          const { monthlyData: staticMonthlyData } = await import('../data/articles');
-          setMonthlyData(staticMonthlyData);
-        } catch (importError) {
-          console.error('Failed to load fallback monthly data:', importError);
-          setMonthlyData([]);
-        }
+        setMonthlyData([]);
       } finally {
         setLoading(false);
       }
