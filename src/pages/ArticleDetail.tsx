@@ -1,32 +1,43 @@
 import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Clock, ArrowLeft, ArrowRight, Share2, Twitter, MessageCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { Article } from '../types';
 import PremiumGate from '../components/PremiumGate';
-
-// Mock data - in production, fetch from API
-const articles = [
-  {
-    id: 'jan-20-todays-world-brief',
-    title: "Today's World: 5-Minute Brief",
-    excerpt: "China's Strategic Power Play Reshapes Global Order while India cuts GST rates to boost consumption.",
-    content: '<h1>📰 Today\'s World: 5-Minute Brief</h1><p><em>January 20 2025 | Your Global Update</em></p><p>Sample content for demonstration...</p>',
-    date: '2025-01-20',
-    publishedAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(), // 8 days ago
-    readingTime: '5 min',
-    category: 'Global News',
-    month: 'January',
-    year: '2025',
-    featured: true,
-    isPremium: true
-  }
-];
 
 const ArticleDetail: React.FC = () => {
   const { year, month, id } = useParams<{ year: string; month: string; id: string }>();
   const { user } = useAuth();
+  const [article, setArticle] = useState<Article | null>(null);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  const article = articles.find(a => a.id === id);
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/articles');
+        if (!response.ok) {
+          throw new Error('Failed to fetch articles');
+        }
+        const result = await response.json();
+        setArticles(result);
+        
+        // Find the specific article
+        const foundArticle = result.find((a: Article) => a.id === id);
+        setArticle(foundArticle || null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, [id]);
+
   const currentIndex = articles.findIndex(a => a.id === id);
   const previousArticle = currentIndex > 0 ? articles[currentIndex - 1] : null;
   const nextArticle = currentIndex < articles.length - 1 ? articles[currentIndex + 1] : null;
@@ -36,11 +47,40 @@ const ArticleDetail: React.FC = () => {
 
   const capitalizeMonth = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading article...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error: {error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!article) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
+          <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Article Not Found</h1>
+          <p className="text-gray-600 mb-4">The article you're looking for doesn't exist or may have been moved.</p>
           <Link to="/" className="text-blue-600 hover:text-blue-700">
             Return to Home
           </Link>

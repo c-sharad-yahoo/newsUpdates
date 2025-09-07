@@ -1,10 +1,79 @@
 import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BarChart3, Brain, Zap, Smartphone, Calendar, Users } from 'lucide-react';
-import { monthlyData } from '../data/articles';
+import { MonthData, Article } from '../types';
 import NewsletterSignup from '../components/NewsletterSignup';
 
 const Home: React.FC = () => {
+  const [monthlyData, setMonthlyData] = useState<MonthData[]>([]);
+  const [latestArticle, setLatestArticle] = useState<Article | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Fetch monthly data
+        const monthlyResponse = await fetch('/api/monthly-data');
+        if (!monthlyResponse.ok) {
+          throw new Error('Failed to fetch monthly data');
+        }
+        const monthlyResult = await monthlyResponse.json();
+        setMonthlyData(monthlyResult);
+
+        // Fetch latest article for the "Read Today's Analysis" link
+        const articlesResponse = await fetch('/api/articles');
+        if (!articlesResponse.ok) {
+          throw new Error('Failed to fetch articles');
+        }
+        const articlesResult = await articlesResponse.json();
+        if (articlesResult.length > 0) {
+          // Sort by date and get the most recent
+          const sortedArticles = articlesResult.sort((a: Article, b: Article) => 
+            new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+          );
+          setLatestArticle(sortedArticles[0]);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading latest updates...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error: {error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -20,13 +89,19 @@ const Home: React.FC = () => {
               Essential news analysis for students and young professionals. 
               Stay informed without the overwhelm.
             </p>
-            <Link
-              to="/2025/january"
-              className="inline-flex items-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl"
-            >
-              Read Today's Analysis
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Link>
+            {latestArticle ? (
+              <Link
+                to={`/${latestArticle.year.toLowerCase()}/${latestArticle.month.toLowerCase()}/${latestArticle.id}`}
+                className="inline-flex items-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl"
+              >
+                Read Today's Analysis
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+            ) : (
+              <div className="inline-flex items-center px-8 py-4 bg-gray-400 text-white font-semibold rounded-lg cursor-not-allowed">
+                No Articles Available
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -42,7 +117,7 @@ const Home: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {monthlyData.map((month) => (
+            {monthlyData.length > 0 ? monthlyData.map((month) => (
               <Link
                 key={`${month.month}-${month.year}`}
                 to={`/${month.year.toLowerCase()}/${month.month.toLowerCase()}`}
@@ -71,7 +146,13 @@ const Home: React.FC = () => {
                   </div>
                 </div>
               </Link>
-            ))}
+            )) : (
+              <div className="col-span-full text-center py-12">
+                <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Articles Yet</h3>
+                <p className="text-gray-600">Articles will appear here as they are published.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

@@ -1,22 +1,72 @@
 import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Clock, ArrowRight, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
-import { articles } from '../data/articles';
+import { Article } from '../types';
 
 const MonthView: React.FC = () => {
   const { year, month } = useParams<{ year: string; month: string }>();
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   const capitalizeMonth = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
   const monthName = month ? capitalizeMonth(month) : '';
   const yearNum = year ? year.charAt(0).toUpperCase() + year.slice(1) : '';
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/articles');
+        if (!response.ok) {
+          throw new Error('Failed to fetch articles');
+        }
+        const result = await response.json();
+        setArticles(result);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
 
   const monthArticles = articles.filter(
     article => 
       article.month.toLowerCase() === month?.toLowerCase() && 
       article.year === yearNum
   );
-
   const categories = [...new Set(articles.map(article => article.category))];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading articles...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error: {error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

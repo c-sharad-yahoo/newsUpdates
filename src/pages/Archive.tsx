@@ -1,15 +1,67 @@
 import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, ArrowRight, BookOpen, TrendingUp } from 'lucide-react';
-import { monthlyData } from '../data/articles';
+import { MonthData } from '../types';
 
 const Archive: React.FC = () => {
+  const [monthlyData, setMonthlyData] = useState<MonthData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchMonthlyData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/monthly-data');
+        if (!response.ok) {
+          throw new Error('Failed to fetch monthly data');
+        }
+        const result = await response.json();
+        setMonthlyData(result);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMonthlyData();
+  }, []);
+
   const years = [...new Set(monthlyData.map(item => item.year))].sort((a, b) => b.localeCompare(a));
   
   const groupedData = years.map(year => ({
     year,
     months: monthlyData.filter(item => item.year === year)
   }));
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading archive...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error: {error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -27,7 +79,7 @@ const Archive: React.FC = () => {
         </div>
 
         {/* Archive Grid */}
-        {groupedData.map(({ year, months }) => (
+        {groupedData.length > 0 ? groupedData.map(({ year, months }) => (
           <div key={year} className="mb-16">
             <div className="flex items-center space-x-3 mb-8">
               <h2 className="text-2xl font-bold text-gray-900">{year}</h2>
@@ -78,7 +130,13 @@ const Archive: React.FC = () => {
               ))}
             </div>
           </div>
-        ))}
+        )) : (
+          <div className="text-center py-12">
+            <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Articles Yet</h3>
+            <p className="text-gray-600">The archive will be populated as articles are published.</p>
+          </div>
+        )}
 
         {/* Call to Action */}
         <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-200">
