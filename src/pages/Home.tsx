@@ -12,9 +12,10 @@ const Home: React.FC = () => {
 
   // Generate excerpt for display
   const getArticleExcerpt = (article: any) => {
-    if (article.excerpt) return article.excerpt;
+    // Prioritize primary_focus.summary for rich JSON structure
     if (article.primary_focus?.summary) return article.primary_focus.summary;
-    return 'Today\'s essential news analysis and global updates.';
+    if (article.excerpt) return article.excerpt;
+    return 'Comprehensive current affairs analysis for competitive exam preparation.';
   };
   if (isLoading) {
     return (

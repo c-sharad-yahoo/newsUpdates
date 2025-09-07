@@ -242,6 +242,194 @@
   letter-spacing: 0.5px;
 }
 
+.multi-impact {
+  background: #f0f9ff;
+  border-left: 3px solid #0ea5e9;
+  padding: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  border-radius: 0 var(--spacing-xs) var(--spacing-xs) 0;
+}
+
+.multi-impact-title {
+  font-weight: 600;
+  color: #0c4a6e;
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-small);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.multi-impact-content {
+  color: var(--color-primary);
+  line-height: 1.6;
+}
+
+.historical-context {
+  background: #faf5ff;
+  border-left: 3px solid #a855f7;
+  padding: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  border-radius: 0 var(--spacing-xs) var(--spacing-xs) 0;
+}
+
+.historical-context-title {
+  font-weight: 600;
+  color: #581c87;
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-small);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.historical-context-content {
+  color: var(--color-primary);
+  line-height: 1.6;
+}
+
+.future-implications {
+  background: #f0f4ff;
+  border-left: 3px solid #6366f1;
+  padding: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  border-radius: 0 var(--spacing-xs) var(--spacing-xs) 0;
+}
+
+.future-implications-title {
+  font-weight: 600;
+  color: #312e81;
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-small);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.future-implications-content {
+  color: var(--color-primary);
+  line-height: 1.6;
+}
+
+.development-overview {
+  background: #f8fafc;
+  border-left: 3px solid #64748b;
+  padding: var(--spacing-sm);
+  margin: var(--spacing-sm) 0;
+  border-radius: 0 var(--spacing-xs) var(--spacing-xs) 0;
+}
+
+.development-overview-title {
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-small);
+}
+
+.development-overview-content {
+  color: var(--color-primary);
+  line-height: 1.6;
+}
+
+.policy-significance {
+  background: #fefce8;
+  border-left: 3px solid #eab308;
+  padding: var(--spacing-sm);
+  margin: var(--spacing-sm) 0;
+  border-radius: 0 var(--spacing-xs) var(--spacing-xs) 0;
+}
+
+.policy-significance-title {
+  font-weight: 600;
+  color: #713f12;
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-small);
+}
+
+.policy-significance-content {
+  color: var(--color-primary);
+  line-height: 1.6;
+}
+
+.exam-connection {
+  background: #f0fdf4;
+  border-left: 3px solid #22c55e;
+  padding: var(--spacing-sm);
+  margin: var(--spacing-sm) 0;
+  border-radius: 0 var(--spacing-xs) var(--spacing-xs) 0;
+}
+
+.exam-connection-title {
+  font-weight: 600;
+  color: #14532d;
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-small);
+}
+
+.exam-connection-content {
+  color: var(--color-primary);
+  line-height: 1.6;
+}
+
+.analytical-perspectives {
+  background: #fef2f2;
+  border-left: 3px solid #ef4444;
+  padding: var(--spacing-sm);
+  margin: var(--spacing-sm) 0;
+  border-radius: 0 var(--spacing-xs) var(--spacing-xs) 0;
+}
+
+.analytical-perspectives-title {
+  font-weight: 600;
+  color: #7f1d1d;
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-small);
+}
+
+.analytical-perspectives-content {
+  color: var(--color-primary);
+  line-height: 1.6;
+}
+
+.exam-intelligence {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: var(--radius);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  box-shadow: var(--shadow);
+}
+
+.exam-intelligence-title {
+  font-size: var(--font-size-h2);
+  font-weight: 700;
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-primary);
+  text-align: center;
+}
+
+.exam-section {
+  background: var(--color-card);
+  border-radius: var(--spacing-xs);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  border: 1px solid var(--color-border);
+}
+
+.exam-section:last-child {
+  margin-bottom: 0;
+}
+
+.exam-section-title {
+  font-size: var(--font-size-h3);
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-primary);
+}
+
+.exam-section-content {
+  color: var(--color-primary);
+  line-height: 1.7;
+  font-size: var(--font-size-body);
+}
+
 .rapid-updates {
   background: var(--color-card);
   border-radius: var(--radius);

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Calendar, Clock, ArrowLeft, ArrowRight, Share2, BookOpen, Target } from 'lucide-react';
+import { Calendar, Clock, ArrowLeft, ArrowRight, Share2, BookOpen, Target, TrendingUp, Brain, Globe, BarChart3, Lightbulb } from 'lucide-react';
 import { useArticles } from '../hooks/useArticles';
 
 const ArticleDetail: React.FC = () => {
@@ -109,6 +109,12 @@ const ArticleDetail: React.FC = () => {
               <BookOpen className="w-4 h-4" />
               <span>{article.category}</span>
             </div>
+            {article.meta?.word_count && (
+              <div className="flex items-center space-x-2">
+                <BarChart3 className="w-4 h-4" />
+                <span>{article.meta.word_count} words</span>
+              </div>
+            )}
             <button
               onClick={handleShare}
               className="flex items-center space-x-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
@@ -124,7 +130,7 @@ const ArticleDetail: React.FC = () => {
             {/* Impact Summary */}
             {article.impact_summary && (
               <div className="impact-summary">
-                <h3>Daily Impact Assessment</h3>
+                <h3>📊 Daily Impact Assessment</h3>
                 <div className="impact-grid">
                   <div className="impact-item">
                     <span className="impact-number">{article.impact_summary.policy_developments}</span>
@@ -151,16 +157,59 @@ const ArticleDetail: React.FC = () => {
               <div className="primary-focus">
                 <h2 className="primary-focus-title">
                   <Target className="inline w-6 h-6 mr-2 text-orange-500" />
-                  Primary Focus: {article.primary_focus.title}
+                  🔥 Primary Focus: {article.primary_focus.title}
                 </h2>
+                
+                {article.primary_focus.category && (
+                  <div className="mb-4">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                      {article.primary_focus.category}
+                    </span>
+                  </div>
+                )}
+                
                 <div className="primary-focus-summary">
                   {article.primary_focus.summary}
                 </div>
+                
                 <div className="article-content">
                   {article.primary_focus.content.split('\n').map((paragraph, index) => (
                     paragraph.trim() && <p key={index}>{paragraph}</p>
                   ))}
                 </div>
+                
+                {/* Multi-dimensional Impact */}
+                {article.primary_focus.multi_dimensional_impact && (
+                  <div className="multi-impact">
+                    <div className="multi-impact-title">
+                      <Globe className="inline w-5 h-5 mr-2 text-green-600" />
+                      Multi-Dimensional Impact
+                    </div>
+                    <div className="multi-impact-content">{article.primary_focus.multi_dimensional_impact}</div>
+                  </div>
+                )}
+                
+                {/* Historical Context */}
+                {article.primary_focus.historical_context && (
+                  <div className="historical-context">
+                    <div className="historical-context-title">
+                      <Clock className="inline w-5 h-5 mr-2 text-purple-600" />
+                      Historical Context
+                    </div>
+                    <div className="historical-context-content">{article.primary_focus.historical_context}</div>
+                  </div>
+                )}
+                
+                {/* Future Implications */}
+                {article.primary_focus.future_implications && (
+                  <div className="future-implications">
+                    <div className="future-implications-title">
+                      <TrendingUp className="inline w-5 h-5 mr-2 text-indigo-600" />
+                      Future Implications
+                    </div>
+                    <div className="future-implications-content">{article.primary_focus.future_implications}</div>
+                  </div>
+                )}
                 
                 {article.primary_focus.key_terms && article.primary_focus.key_terms.length > 0 && (
                   <div className="key-terms">
@@ -172,8 +221,16 @@ const ArticleDetail: React.FC = () => {
                 
                 {article.primary_focus.exam_relevance && (
                   <div className="exam-relevance">
-                    <div className="exam-relevance-title">Exam Relevance</div>
+                    <div className="exam-relevance-title">🎯 Exam Relevance</div>
                     <div>{article.primary_focus.exam_relevance}</div>
+                  </div>
+                )}
+                
+                {article.primary_focus.citations && article.primary_focus.citations.length > 0 && (
+                  <div className="citations">
+                    Citations: {article.primary_focus.citations.map((citation, index) => (
+                      <span key={index} className="citation">[{citation}]</span>
+                    ))}
                   </div>
                 )}
               </div>
@@ -191,11 +248,47 @@ const ArticleDetail: React.FC = () => {
                   <div key={articleIndex} className="article">
                     <h3 className="article-title">{sectionArticle.title}</h3>
                     <div className="article-summary">{sectionArticle.summary}</div>
-                    <div className="article-content">
-                      {sectionArticle.content.split('\n').map((paragraph, index) => (
-                        paragraph.trim() && <p key={index}>{paragraph}</p>
-                      ))}
-                    </div>
+                    
+                    {/* Development Overview */}
+                    {sectionArticle.development_overview && (
+                      <div className="development-overview">
+                        <h4 className="development-overview-title">📋 Development Overview</h4>
+                        <div className="development-overview-content">{sectionArticle.development_overview}</div>
+                      </div>
+                    )}
+                    
+                    {/* Policy Significance */}
+                    {sectionArticle.policy_significance && (
+                      <div className="policy-significance">
+                        <h4 className="policy-significance-title">⚖️ Policy Significance</h4>
+                        <div className="policy-significance-content">{sectionArticle.policy_significance}</div>
+                      </div>
+                    )}
+                    
+                    {/* Exam Connection */}
+                    {sectionArticle.exam_connection && (
+                      <div className="exam-connection">
+                        <h4 className="exam-connection-title">🎓 Exam Connection</h4>
+                        <div className="exam-connection-content">{sectionArticle.exam_connection}</div>
+                      </div>
+                    )}
+                    
+                    {/* Analytical Perspectives */}
+                    {sectionArticle.analytical_perspectives && (
+                      <div className="analytical-perspectives">
+                        <h4 className="analytical-perspectives-title">🔍 Analytical Perspectives</h4>
+                        <div className="analytical-perspectives-content">{sectionArticle.analytical_perspectives}</div>
+                      </div>
+                    )}
+                    
+                    {/* Legacy content field */}
+                    {sectionArticle.content && (
+                      <div className="article-content">
+                        {sectionArticle.content.split('\n').map((paragraph, index) => (
+                          paragraph.trim() && <p key={index}>{paragraph}</p>
+                        ))}
+                      </div>
+                    )}
                     
                     {sectionArticle.key_terms && sectionArticle.key_terms.length > 0 && (
                       <div className="key-terms">
@@ -234,6 +327,66 @@ const ArticleDetail: React.FC = () => {
                     )}
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Exam Intelligence */}
+            {article.exam_intelligence && (
+              <div className="exam-intelligence">
+                <h2 className="exam-intelligence-title">
+                  <Brain className="inline w-6 h-6 mr-2 text-purple-600" />
+                  🧠 Exam Intelligence Toolkit
+                </h2>
+                
+                {article.exam_intelligence.new_concepts && (
+                  <div className="exam-section">
+                    <h3 className="exam-section-title">
+                      <Lightbulb className="inline w-5 h-5 mr-2 text-yellow-600" />
+                      New Concepts Learned
+                    </h3>
+                    <div className="exam-section-content">{article.exam_intelligence.new_concepts}</div>
+                  </div>
+                )}
+                
+                {article.exam_intelligence.static_dynamic_connections && (
+                  <div className="exam-section">
+                    <h3 className="exam-section-title">
+                      <Globe className="inline w-5 h-5 mr-2 text-green-600" />
+                      Static-Dynamic Connections
+                    </h3>
+                    <div className="exam-section-content">{article.exam_intelligence.static_dynamic_connections}</div>
+                  </div>
+                )}
+                
+                {article.exam_intelligence.question_probability && (
+                  <div className="exam-section">
+                    <h3 className="exam-section-title">
+                      <Target className="inline w-5 h-5 mr-2 text-red-600" />
+                      Question Probability Analysis
+                    </h3>
+                    <div className="exam-section-content">{article.exam_intelligence.question_probability}</div>
+                  </div>
+                )}
+                
+                {article.exam_intelligence.factual_database && (
+                  <div className="exam-section">
+                    <h3 className="exam-section-title">
+                      <BarChart3 className="inline w-5 h-5 mr-2 text-blue-600" />
+                      Factual Database
+                    </h3>
+                    <div className="exam-section-content">{article.exam_intelligence.factual_database}</div>
+                  </div>
+                )}
+                
+                {article.exam_intelligence.comparative_analysis && (
+                  <div className="exam-section">
+                    <h3 className="exam-section-title">
+                      <TrendingUp className="inline w-5 h-5 mr-2 text-indigo-600" />
+                      Comparative Analysis
+                    </h3>
+                    <div className="exam-section-content">{article.exam_intelligence.comparative_analysis}</div>
+                  </div>
+                )}
               </div>
             )}
           </>

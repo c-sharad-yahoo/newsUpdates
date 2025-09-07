@@ -131,4 +131,12 @@ const MonthView: React.FC = () => {
   );
 };
 
+// Helper function to generate excerpt
+const getArticleExcerpt = (article: any) => {
+  // Prioritize primary_focus.summary for rich JSON structure
+  if (article.primary_focus?.summary) return article.primary_focus.summary;
+  if (article.excerpt) return article.excerpt;
+  return 'Comprehensive current affairs analysis for competitive exam preparation.';
+};
+
 export default MonthView;

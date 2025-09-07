@@ -166,7 +166,9 @@ class ContentStorage {
     const month = new Date(date).toLocaleDateString('en-US', { month: 'long' });
     const year = new Date(date).getFullYear().toString();
     
-    // Generate excerpt from primary focus summary
+    // Extract reading time and category from the rich JSON structure
+    const readingTime = jsonData.meta?.reading_time || '5 min';
+    const category = jsonData.primary_focus?.category || 'General Studies';
     const excerpt = jsonData.primary_focus?.summary || 'Today\'s essential news analysis and global updates.';
     
     return {
@@ -174,19 +176,31 @@ class ContentStorage {
       title: jsonData.title,
       date: jsonData.date || date,
       publishedAt,
-      readingTime: '5 min',
-      category: 'General Studies',
+      readingTime,
+      category,
       month,
       year,
       featured: true,
       source: 'webhook',
       excerpt,
       
-      // New JSON structure
+      // Rich JSON structure - store all fields
+      meta: jsonData.meta || {
+        word_count: "1500",
+        reading_time: readingTime,
+        generated_at: publishedAt
+      },
       impact_summary: jsonData.impact_summary,
       primary_focus: jsonData.primary_focus,
       sections: jsonData.sections || [],
-      rapid_updates: jsonData.rapid_updates || []
+      rapid_updates: jsonData.rapid_updates || [],
+      exam_intelligence: jsonData.exam_intelligence || {
+        new_concepts: "",
+        static_dynamic_connections: "",
+        question_probability: "",
+        factual_database: "",
+        comparative_analysis: ""
+      }
     };
   }
 
