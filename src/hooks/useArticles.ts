@@ -48,10 +48,6 @@ export function useArticles(isPremium: boolean = false) {
     loadArticles();
   }, [isPremium]);
 
-  const refetch = async () => {
-    await loadArticles();
-  }, [isPremium]);
-
   const refetch = () => {
     loadArticles();
   };
