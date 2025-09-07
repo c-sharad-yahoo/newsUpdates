@@ -16,7 +16,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite",
-    "dev:server": "concurrently \"npm run dev\" \"npm run server\"",
+    "dev:server": "concurrently \"npm run server\" \"npm run dev\"",
     "server": "nodemon server/index.cjs",
     "build": "tsc && vite build",
     "lint": "eslint .",
