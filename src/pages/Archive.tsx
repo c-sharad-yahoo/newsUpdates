@@ -1,32 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, ArrowRight, BookOpen, TrendingUp } from 'lucide-react';
-import { MonthData } from '../types';
+import { useMonthlyData } from '../hooks/useArticles';
 
 const Archive: React.FC = () => {
-  const [monthlyData, setMonthlyData] = useState<MonthData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchMonthlyData = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/monthly-data');
-        if (!response.ok) {
-          throw new Error('Failed to fetch monthly data');
-        }
-        const result = await response.json();
-        setMonthlyData(result);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMonthlyData();
-  }, []);
+  const { monthlyData, loading: isLoading, error } = useMonthlyData();
 
   const years = [...new Set(monthlyData.map(item => item.year))].sort((a, b) => b.localeCompare(a));
   

@@ -2,40 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Clock, ArrowLeft, ArrowRight, Share2, Twitter, MessageCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { Article } from '../types';
+import { useArticles } from '../hooks/useArticles';
 import PremiumGate from '../components/PremiumGate';
 
 const ArticleDetail: React.FC = () => {
   const { year, month, id } = useParams<{ year: string; month: string; id: string }>();
   const { user } = useAuth();
-  const [article, setArticle] = useState<Article | null>(null);
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { articles, loading: isLoading, error } = useArticles(user?.isPremium || false);
   
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/articles');
-        if (!response.ok) {
-          throw new Error('Failed to fetch articles');
-        }
-        const result = await response.json();
-        setArticles(result);
-        
-        // Find the specific article
-        const foundArticle = result.find((a: Article) => a.id === id);
-        setArticle(foundArticle || null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchArticles();
-  }, [id]);
+  const article = articles.find(a => a.id === id) || null;
 
   const currentIndex = articles.findIndex(a => a.id === id);
   const previousArticle = currentIndex > 0 ? articles[currentIndex - 1] : null;

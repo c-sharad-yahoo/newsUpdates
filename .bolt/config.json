@@ -1,3 +1,11 @@
 {
-  "template": "bolt-vite-react-ts"
+  "environment": "development",
+  "preview": {
+    "enabled": true,
+    "port": 5173
+  },
+  "build": {
+    "command": "npm run dev",
+    "outputDir": "dist"
+  }
 }

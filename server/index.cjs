@@ -4,13 +4,13 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
 const cron = require('node-cron');
-const ArticleDatabase = require('./database');
+const ContentStorage = require('./storage');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Initialize database
-const db = new ArticleDatabase();
+// Initialize storage
+const storage = new ContentStorage();
 
 // Middleware
 app.use(helmet());
@@ -22,97 +22,10 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from React build
 app.use(express.static(path.join(__dirname, '../dist')));
 
-// Utility functions
-const generateArticleId = (title, publishedAt) => {
-  const dateStr = new Date(publishedAt).toISOString().split('T')[0];
-  const titleSlug = title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .substring(0, 50);
-  return `${dateStr}-${titleSlug}`;
-};
-
-const parseMarkdownContent = (markdown) => {
-  // Extract title from first heading
-  const titleMatch = markdown.match(/^#\s+(.+)$/m);
-  const title = titleMatch ? titleMatch[1].replace(/📰|✨|🌍/g, '').trim() : 'Daily Brief Update';
-  
-  const publishedAt = new Date().toISOString();
-  const date = new Date().toISOString().split('T')[0];
-  
-  // Extract excerpt from first paragraph after headers
-  const contentLines = markdown.split('\n').filter(line => line.trim());
-  const firstParagraph = contentLines.find(line => 
-    !line.startsWith('#') && 
-    !line.startsWith('*') && 
-    !line.startsWith('**') && 
-    !line.startsWith('---') &&
-    line.length > 50
-  );
-  
-  const excerpt = firstParagraph 
-    ? firstParagraph.substring(0, 200) + '...'
-    : 'Today\'s essential news analysis and global updates.';
-  
-  // Simple markdown to HTML conversion
-  const content = markdown
-    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/^(.+)$/gm, '<p>$1</p>');
-  
-  // Determine category based on content
-  let category = 'Global News';
-  const lowerContent = markdown.toLowerCase();
-  if (lowerContent.includes('technology') || lowerContent.includes('ai') || lowerContent.includes('tech')) {
-    category = 'Technology';
-  } else if (lowerContent.includes('economy') || lowerContent.includes('market') || lowerContent.includes('trade')) {
-    category = 'Economics';
-  } else if (lowerContent.includes('climate') || lowerContent.includes('environment')) {
-    category = 'Environment';
-  } else if (lowerContent.includes('health') || lowerContent.includes('medical')) {
-    category = 'Health';
-  }
-  
-  const month = new Date(date).toLocaleDateString('en-US', { month: 'long' });
-  const year = new Date(date).getFullYear().toString();
-  
-  return {
-    id: generateArticleId(title, publishedAt),
-    title,
-    excerpt,
-    content,
-    date,
-    publishedAt,
-    readingTime: '5 min',
-    category,
-    month,
-    year,
-    featured: true,
-    isPremium: false
-  };
-};
-
-const addArticle = (newArticle) => {
-  // Remove featured flag from existing articles
-  db.db.prepare('UPDATE articles SET featured = 0').run();
-  
-  // Add new article
-  db.addArticle(newArticle);
-};
-
-const markArticlesAsPremium = () => {
-  db.markArticlesAsPremium();
-};
-
 // Schedule daily premium check (runs every day at midnight)
 cron.schedule('0 0 * * *', () => {
   console.log('Running daily premium check...');
-  markArticlesAsPremium();
+  storage.markArticlesAsPremium();
 });
 
 // Webhook endpoint for receiving daily updates
@@ -130,10 +43,10 @@ app.post('/api/webhook/daily-update', async (req, res) => {
     }
     
     // Parse markdown content
-    const article = parseMarkdownContent(content);
+    const article = storage.parseMarkdownContent(content);
     
-    // Add article to memory storage
-    addArticle(article);
+    // Save article to persistent storage
+    await storage.saveWebhookArticle(article);
     
     console.log(`New article added: ${article.title}`);
     
@@ -163,7 +76,7 @@ app.get('/api/articles', async (req, res) => {
     const { isPremium = 'false' } = req.query;
     const userIsPremium = isPremium === 'true';
     
-    const filteredArticles = db.getAllArticles(userIsPremium);
+    const filteredArticles = storage.getAllArticles(userIsPremium);
     
     res.json(filteredArticles);
   } catch (error) {
@@ -174,14 +87,13 @@ app.get('/api/articles', async (req, res) => {
 
 // API endpoint to get monthly data
 app.get('/api/monthly-data', (req, res) => {
-  res.json(db.getMonthlyData());
+  res.json(storage.getMonthlyData());
 });
 
 // API endpoint for premium check
 app.get('/api/article/:id/premium-check', (req, res) => {
   const { id } = req.params;
-  const articles = db.getAllArticles(true);
-  const article = articles.find(a => a.id === id);
+  const article = storage.getArticleById(id);
   
   if (!article) {
     return res.status(404).json({ error: 'Article not found' });
@@ -198,7 +110,8 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    articlesCount: storage.getAllArticles(true).length
   });
 });
 
@@ -216,10 +129,14 @@ app.use((error, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  // Initialize storage on server start
+  await storage.initStorage();
+  
   console.log(`Daily Brief server running on port ${PORT}`);
   console.log(`Webhook endpoint: http://localhost:${PORT}/api/webhook/daily-update`);
   console.log('Daily premium check scheduled for midnight');
+  console.log(`Loaded ${storage.getAllArticles(true).length} articles`);
 });
 
 module.exports = app;

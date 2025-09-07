@@ -1,37 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Clock, ArrowRight, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
-import { Article } from '../types';
+import { useArticles } from '../hooks/useArticles';
+import { useAuth } from '../hooks/useAuth';
 
 const MonthView: React.FC = () => {
   const { year, month } = useParams<{ year: string; month: string }>();
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const { articles, loading: isLoading, error } = useArticles(user?.isPremium || false);
   
   const capitalizeMonth = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
   const monthName = month ? capitalizeMonth(month) : '';
   const yearNum = year ? year.charAt(0).toUpperCase() + year.slice(1) : '';
-
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/articles');
-        if (!response.ok) {
-          throw new Error('Failed to fetch articles');
-        }
-        const result = await response.json();
-        setArticles(result);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchArticles();
-  }, []);
 
   const monthArticles = articles.filter(
     article => 

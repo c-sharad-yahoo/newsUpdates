@@ -1,50 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BarChart3, Brain, Zap, Smartphone, Calendar, Users } from 'lucide-react';
-import { MonthData, Article } from '../types';
+import { useArticles, useMonthlyData } from '../hooks/useArticles';
+import { useAuth } from '../hooks/useAuth';
 import NewsletterSignup from '../components/NewsletterSignup';
 
 const Home: React.FC = () => {
-  const [monthlyData, setMonthlyData] = useState<MonthData[]>([]);
-  const [latestArticle, setLatestArticle] = useState<Article | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Fetch monthly data
-        const monthlyResponse = await fetch('/api/monthly-data');
-        if (!monthlyResponse.ok) {
-          throw new Error('Failed to fetch monthly data');
-        }
-        const monthlyResult = await monthlyResponse.json();
-        setMonthlyData(monthlyResult);
-
-        // Fetch latest article for the "Read Today's Analysis" link
-        const articlesResponse = await fetch('/api/articles');
-        if (!articlesResponse.ok) {
-          throw new Error('Failed to fetch articles');
-        }
-        const articlesResult = await articlesResponse.json();
-        if (articlesResult.length > 0) {
-          // Sort by date and get the most recent
-          const sortedArticles = articlesResult.sort((a: Article, b: Article) => 
-            new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-          );
-          setLatestArticle(sortedArticles[0]);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const { user } = useAuth();
+  const { articles, loading: articlesLoading } = useArticles(user?.isPremium || false);
+  const { monthlyData, loading: monthlyLoading } = useMonthlyData();
+  
+  const latestArticle = articles.length > 0 ? articles[0] : null;
+  const isLoading = articlesLoading || monthlyLoading;
 
   if (isLoading) {
     return (
@@ -52,22 +19,6 @@ const Home: React.FC = () => {
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading latest updates...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">Error: {error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Retry
-          </button>
         </div>
       </div>
     );
