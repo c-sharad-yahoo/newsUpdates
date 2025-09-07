@@ -25,7 +25,12 @@ const ArticleDetail: React.FC = () => {
     article.sections?.forEach((section, sectionIndex) => {
       console.log(`Section ${sectionIndex} (${section.title}):`, section.articles?.length, 'articles');
       section.articles?.forEach((sectionArticle, articleIndex) => {
-        console.log(`  Article ${articleIndex}:`, Object.keys(sectionArticle));
+        console.log(`  Article ${articleIndex} (${sectionArticle.title}):`, Object.keys(sectionArticle));
+        console.log(`    Available fields:`, Object.keys(sectionArticle).filter(key => 
+          !['title', 'summary', 'key_terms', 'citations'].includes(key) && 
+          typeof sectionArticle[key] === 'string' && 
+          sectionArticle[key]?.trim()
+        ));
       });
     });
   }
@@ -272,11 +277,12 @@ const ArticleDetail: React.FC = () => {
                     
                     {/* Dynamic Content Rendering */}
                     {(() => {
-                      const excludedKeys = ['title', 'summary', 'key_terms', 'citations', 'content'];
+                      const excludedKeys = ['title', 'summary', 'key_terms', 'citations'];
                       const contentKeys = Object.keys(sectionArticle).filter(key => 
                         !excludedKeys.includes(key) && 
                         typeof sectionArticle[key] === 'string' && 
-                        sectionArticle[key]?.trim()
+                        sectionArticle[key]?.trim() &&
+                        sectionArticle[key].length > 0
                       );
                       
                       return contentKeys.map((key, index) => {
@@ -288,21 +294,14 @@ const ArticleDetail: React.FC = () => {
                         
                         return (
                           <div key={index} className="dynamic-content-section">
-                            <h4 className="dynamic-content-title">📄 {title}</h4>
+                            <h4 className="dynamic-content-title">
+                              {getIconForField(key)} {title}
+                            </h4>
                             <div className="dynamic-content-body">{sectionArticle[key] as string}</div>
                           </div>
                         );
                       });
                     })()}
-                    
-                    {/* Legacy content field */}
-                    {sectionArticle.content && (
-                      <div className="article-content">
-                        {(sectionArticle.content || '').split('\n').map((paragraph, index) => (
-                          paragraph.trim() && <p key={index}>{paragraph}</p>
-                        ))}
-                      </div>
-                    )}
                     
                     {sectionArticle.key_terms && sectionArticle.key_terms.length > 0 && (
                       <div className="key-terms">
@@ -505,6 +504,34 @@ const ArticleDetail: React.FC = () => {
       </div>
     </div>
   );
+};
+
+// Helper function to get appropriate icons for different field types
+const getIconForField = (fieldName: string): string => {
+  const iconMap: { [key: string]: string } = {
+    'global_update': '🌍',
+    'strategic_analysis': '🎯',
+    'geopolitical_context': '🗺️',
+    'economic_update': '📈',
+    'impact_assessment': '📊',
+    'policy_analysis': '📋',
+    'conceptual_learning': '🧠',
+    'research_update': '🔬',
+    'practical_applications': '⚙️',
+    'scientific_principles': '🧪',
+    'exam_integration': '📚',
+    'social_update': '👥',
+    'stakeholder_impact': '🤝',
+    'policy_framework': '🏛️',
+    'sociological_insights': '💡',
+    'development_overview': '📄',
+    'policy_significance': '⚖️',
+    'exam_connection': '🎓',
+    'analytical_perspectives': '🔍',
+    'exam_relevance': '🎯'
+  };
+  
+  return iconMap[fieldName] || '📄';
 };
 
 export default ArticleDetail;
