@@ -1,5 +1,6 @@
 const fs = require('fs').promises;
 const path = require('path');
+const { marked } = require('marked');
 
 class ContentStorage {
   constructor() {
@@ -160,6 +161,14 @@ class ContentStorage {
 
 
   parseMarkdownContent(markdown) {
+    // Configure marked options for better formatting
+    marked.setOptions({
+      breaks: true,
+      gfm: true,
+      headerIds: false,
+      mangle: false
+    });
+
     // Extract title from first heading
     const titleMatch = markdown.match(/^#\s+(.+)$/m);
     const title = titleMatch ? titleMatch[1].replace(/📰|✨|🌍/g, '').trim() : 'Daily Brief Update';
@@ -181,28 +190,11 @@ class ContentStorage {
       ? firstParagraph.substring(0, 200) + '...'
       : 'Today\'s essential news analysis and global updates.';
     
-    // Convert markdown to HTML (simplified)
-    const content = markdown
-      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/\n\n/g, '</p><p>')
-      .replace(/^(.+)$/gm, '<p>$1</p>');
+    // Convert markdown to HTML using marked
+    const content = marked.parse(markdown);
     
-    // Determine category based on content
-    let category = 'Global News';
-    const lowerContent = markdown.toLowerCase();
-    if (lowerContent.includes('technology') || lowerContent.includes('ai') || lowerContent.includes('tech')) {
-      category = 'Technology';
-    } else if (lowerContent.includes('economy') || lowerContent.includes('market') || lowerContent.includes('trade')) {
-      category = 'Economics';
-    } else if (lowerContent.includes('climate') || lowerContent.includes('environment')) {
-      category = 'Environment';
-    } else if (lowerContent.includes('health') || lowerContent.includes('medical')) {
-      category = 'Health';
-    }
+    // Set fixed category for all articles
+    const category = 'General Studies';
     
     const month = new Date(date).toLocaleDateString('en-US', { month: 'long' });
     const year = new Date(date).getFullYear().toString();

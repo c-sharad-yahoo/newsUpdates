@@ -130,7 +130,7 @@ const ArticleDetail: React.FC = () => {
 
         {/* Article Content */}
         <div className="bg-white rounded-2xl p-8 mb-8 shadow-sm border border-gray-200">
-          <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: article.content }} />
+          <div className="prose prose-lg prose-blue max-w-none prose-headings:text-gray-900 prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:text-gray-700 prose-p:leading-relaxed prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:text-gray-700" dangerouslySetInnerHTML={{ __html: article.content }} />
         </div>
 
         {/* Navigation */}

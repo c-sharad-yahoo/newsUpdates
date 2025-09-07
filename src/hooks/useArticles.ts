@@ -22,17 +22,9 @@ export function useArticles() {
           throw new Error('API not available');
         }
       } catch (err) {
-        console.log('API not available, using fallback articles');
+        console.error('Failed to load articles:', err);
         setError('Unable to load articles from server');
-        
-        // Fallback to static articles
-        try {
-          const { articles: staticArticles } = await import('../data/articles');
-          setArticles(staticArticles);
-        } catch (importError) {
-          console.error('Failed to load fallback articles:', importError);
-          setArticles([]);
-        }
+        setArticles([]);
       } finally {
         setLoading(false);
       }

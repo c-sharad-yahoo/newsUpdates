@@ -1,7 +1,6 @@
 import { Article, MonthData } from '../types';
 
-// This file is for DEVELOPMENT ONLY when API is not available
-// Production uses /api/articles endpoint with persistent storage
+// This file is maintained for type exports only
+// All articles are now managed via API and webhook
 export const articles: Article[] = [];
-
 export const monthlyData: MonthData[] = [];
